@@ -94,6 +94,38 @@ app.get('/fruits', (req, res) => {
   .catch(err => console.log('The following error occured: \n', err))
 })
 
+// CREATE route
+// create -> recieves a request body, and creates a new document in the database
+app.post('/fruits', (req, res) => {
+  // here well have something called request body
+  // inside this function, that will be called req.body
+  // we want to pass our req.body to the create method
+  const newFruit = req.body
+  Fruit.create(newFruit)
+    // send a 201 status, along with json response
+    .then(fruit => {
+      res.status(201).json({fruit: fruit.toObject()})
+    })
+    // catch errors
+    .catch(err => console.log(err))
+})
+
+// SHOW route
+// Read -> finds and displays a single resource
+app.get('/fruits/:id', (req,res) => {
+  //get the id
+  const id = req.params.id
+  // use a mongoose method to find using that id
+  Fruit.findById(id)
+    .then(fruits => {
+      res.json({ fruits: fruits })
+    })
+    .catch(err => console.log(err))
+  // send the fruit json upon sucess
+  // catch and errors
+})
+
+
 ////////////////////////////////////
 // Server Listener               //
 ///////////////////////////////////
