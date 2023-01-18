@@ -67,46 +67,56 @@ router.get('/mine', (req, res) => {
   })
 })
 
+
 // PUT route
-// Update -> updates a specific fruit
-// put replaces the entire document with a new document from the req.body
-// PATCH is able to update specific fields at specific times, but requires more code to ensure it works properly, so well use later
+// Update -> updates a specific fruit(only if fruit owner is updating)
 router.put('/:id', (req, res) => {
-  // save the id to a variable for easy use later
   const id = req.params.id
-  // svae the request body to a variable for reference later
-  const updatedFruit = req.body
-  // use mongoose method:
-  // findByIdAndUpdate
-  // eventually well change how this route works, for now well do everything in one shot
-  Fruit.findByIdAndUpdate(id, updatedFruit, { new: true })
+  Fruit.findById(id)
     .then(fruit => {
-      console.log('the newly updated fruit', fruit)
-      // update success message will just be a 204 - no content
-      res.sendStatus(204)
-      })
-      .catch(err => {
-        console.log(err)
-        res.status(404).json(err)
-      })
+      // if the owner of the fruit is the person who is logged in
+      if (fruit.owner == req.session.userId) {
+        // update and save the fruit
+        // and send success message
+        res.sendStatus(204)
+        return fruit.updateOne(req.body)     
+      } else {
+        // otherwise send a 401 unauthorized status
+        res.sendStatus(401)
+      }
+      
+      
+    })
+    .catch(err => {
+      console.log(err)
+      res.status(400).json(err)
+    })
 })
+
 
 // DELETE route
 // delete -> delete a specific fruit
-router.delete('/:id', (req,res) => {
-  //get id from the req
+router.delete('/:id', (req, res) => {
   const id = req.params.id
-  // find and delete the fruit
-  Fruit.findByIdAndRemove(id)
-  // send 204 if succuss
-    .then(() => {
-      res.sendStatus(204)
+  Fruit.findById(id)
+    .then(fruit => {
+      // if the owner of the fruit is the person who is logged in
+      if (fruit.owner == req.session.userId) {
+        // delete fruit
+        // and send success message
+        res.sendStatus(204)
+        return fruit.deleteOne(req.body)     
+      } else {
+        // otherwise send a 401 unauthorized status
+        res.sendStatus(401)
+      }
+      
+      
     })
-  // catch error
-  .catch(err => {
-    console.log(err)
-    res.status(404).json(err)
-  })
+    .catch(err => {
+      console.log(err)
+      res.status(400).json(err)
+    })
 })
 
 // SHOW route
