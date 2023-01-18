@@ -33,6 +33,9 @@ router.post('/', (req, res) => {
   // here well have something called request body
   // inside this function, that will be called req.body
   // we want to pass our req.body to the create method
+  // we want to add an owner field to our fruit
+  // luckily for us, we saved the user's id on the session object, so its really easy for us to access that data
+  req.body.owner = req.session.userId
   const newFruit = req.body
   Fruit.create(newFruit)
     // send a 201 status, along with json response
@@ -44,6 +47,24 @@ router.post('/', (req, res) => {
       console.log(err)
       res.status(404).json(err)
     })
+})
+
+
+// GET ROUTE
+// Index -> This is a user specific index route
+// this will only show the logged in users fruits
+router.get('/mine', (req, res) => {
+  // find fruits by ownership, using the req.session info
+  Fruit.find({ owner: req.session.userId })
+  // if found, display fruits
+  .then(fruits => {
+    res.status(200).json({ fruits: fruits })
+  })
+  // otherwise throw an error
+  .catch(err => {
+    console.log(err)
+    res.status(400).json(err)
+  })
 })
 
 // PUT route

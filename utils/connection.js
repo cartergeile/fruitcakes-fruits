@@ -23,8 +23,8 @@ mongoose.connect(DATABASE_URL, CONFIG)
 // what happens when we open, disconnect, or get an error
 mongoose.connection
   .on('open', () => console.log('Connected to Mongoose'))
-  .on('close', () => console.lo('Disconnected from Mongoose'))
-  .on('error', (err) => console.lo('An error occured: \n', err))
+  .on('close', () => console.log('Disconnected from Mongoose'))
+  .on('error', (err) => console.log('An error occured: \n', err))
 
 
 ////////////////////////////
