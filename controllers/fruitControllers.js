@@ -20,7 +20,7 @@ router.get('/', (req, res) => {
   Fruit.find({})
   // built in function that runs before the rest of the promise chain
   // function is populate, and its able to retrieve info from other documents in other collections
-  populate('owner', 'password')
+  .populate('owner', 'password')
   // send json if successful
   .then(fruits => { res.json({ fruits: fruits })})
   // catch errors if they occur
