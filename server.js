@@ -8,14 +8,8 @@ const express = require('express') // import the express framework
 const morgan = require('morgan') // import the morgan request logger
 require('dotenv').config() // load my env files's variables
 const path = require('path') // import path module
-const FruitRouter = require('./controllers/fruitControllers') // import router from controllers.js
-
-////////////////////////////
-// Import our  Models    //
-///////////////////////////
-const Fruit = require('./models/fruit')
-
-
+const FruitRouter = require('./controllers/fruitControllers') 
+const middleware = require('./utils/middleware')
 
 ////////////////////////////////////
 // Create our Express App Object //
@@ -27,10 +21,8 @@ const app = express()
 ///////////////////////////////////
 // middleware runs before all the routes
 // every request is processed through middleware before mongoose can do anything with it
-app.use(morgan('tiny')) // this is for request logging, the 'tiny' arg declares what size of morgan log to use
-app.use(express.urlencoded({ extended: true })) // this parses urlEncoded request bodies(useful for POST and PUT requests)
-app.use(express.static('public')) // this serves static files from the 'public' folder
-app.use(express.json()) // parses incoming request payloads with JSON
+// our middleware is now processed by a function in the utils directory. this function takes one argument, app, and processes requests through our middleware
+middleware(app)
 
 
 ////////////////////////////////////

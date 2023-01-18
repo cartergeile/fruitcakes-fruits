@@ -49,3 +49,19 @@ So far, we've used 5 RESTful routes to build our API
 
 The two routes that we haven't used so far, are new and edit.
 These are designed to display a page that renders a form, so that we can send a request body from the browser to our server.
+
+
+## File organization, where are things happening?
+
+Main entry file is still `server.js`
+This is where we establish our connection with express, to the port 3000, which allows us to develop locally, on [localhost:3000](http://localhost:3000/).
+
+`server.js` imports our `fruitControllers` from the controllers directory.
+
+`fruitControllers` is where we set up our routes to utilize mongoose to interavt with fruit documents in our mongoDb.
+
+the connection between fruits and mongoDb, starts with the file `utils/connection.js`, where we define and connect to our databse. The fruit model in `models/fruit.js` is where this connection happens.  Our fruitControllers import the model Fruit, and run mongoose model methods whenever we hit appropriate route
+
+## Middleware
+
+our middleware is now processed by a function in the utils directory. this function takes one argument, app, and processes requests through our middleware
