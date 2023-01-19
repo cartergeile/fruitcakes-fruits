@@ -35,6 +35,10 @@ What we're building is a REST api, that runs full CRUD operations on a single re
 - It's just a set of principles that describe how netwoeked resources are accessed and manipulated
 - We have 7 RESTful routes that allow us basic operations for reading and manipulating a collection of data:
 
+## Route tables for documents
+
+#### Fruits
+
 | **URL**          | **HTTP Verb**| **Action** |
 |------------------|--------------|------------|
 | /fruits/         | GET          | index  
@@ -44,6 +48,22 @@ What we're building is a REST api, that runs full CRUD operations on a single re
 | /fruits/:id/edit | GET          | edit       
 | /fruits/:id      | PATCH/PUT    | update    
 | /fruits/:id      | DELETE       | destroy  
+
+#### Comments
+
+| **URL**            | **HTTP Verb**| **Action** |
+|--------------------|--------------|------------|
+| /comments/:fruitId |POST          | create  
+| /comments/delete/:fruitId/:commentId      | DELETE          | destroy       
+
+#### Users
+
+| **URL**          | **HTTP Verb**| **Action** |
+|------------------|--------------|------------|
+| /users/signup    | POST         | create  
+| /users/login     | POST         | create      
+| /users/logout    | DELETE       | destroy   
+
 
 So far, we've used 5 RESTful routes to build our API
 
@@ -65,3 +85,15 @@ the connection between fruits and mongoDb, starts with the file `utils/connectio
 ## Middleware
 
 our middleware is now processed by a function in the utils directory. this function takes one argument, app, and processes requests through our middleware
+
+## Relationships
+
+One to many: 
+  - One user can have many fruits
+  - One fruit can have many comments
+Many to Many:
+One to One:
+
+Fruits are connected to Users through the `fruit.owner` field, via `objecId` reference
+Comments are connected to Fruits, as an array of subdocuments at `fruit.comments`
+Users are connected to comments, via `objectId` reference, at `comment.author`
