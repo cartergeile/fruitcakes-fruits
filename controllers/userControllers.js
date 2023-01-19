@@ -13,6 +13,13 @@ const router = express.Router()
 ////////////////////////////
 // Routes                //
 ///////////////////////////
+// GET -> /users/signup
+// This renders a liquid page with the sign up form
+router.get('/signup', (req, res) => {
+  res.render('users/signup')
+})
+
+
 // POST -> /users/signup
 // This route creates new users in our db
 router.post('/signup', async (req, res) => {
@@ -40,12 +47,17 @@ router.post('/signup', async (req, res) => {
     })
 })
 
+//GET
+// Render us to the login page 
+router.get('/login', (req, res) => {
+  res.render('users/login')
+})
 // POST -> /users/login
 // This route creates new session in our db(and in the browser)
 router.post('/login', async (req, res) => {
   // first destructure the username and password from our req.body
   const { username, password } = req.body
-
+  res.render
   // search the db, for a user with a specific username
   User.findOne({ username })
     .then(async (user) => {
@@ -89,6 +101,13 @@ router.post('/login', async (req, res) => {
     })
 })
 
+// GET -> /users/logout
+// This route render a page to logout
+router.get('/logout', (req, res) => {
+  res.render('users/logout')
+})
+
+
 // DELETE -> /users/logout
 // This route destroys a session in our db(and in the browser)
 router.delete('/logout', (req,res) => {
@@ -96,7 +115,7 @@ router.delete('/logout', (req,res) => {
   req.session.destroy(err => {
     console.log('this is req.session upon logout \n', req.session)
     // eventually we will redirect users here, but thats after adding the view layers
-    res.sendStatus(204)
+    res.redirect('/')
   })
 })
 
