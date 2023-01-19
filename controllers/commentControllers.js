@@ -52,7 +52,8 @@ router.post('/:fruitId', (req, res) => {
     })  
 })
 
-
+// DELETE -> /comments/delete
+router.delete('/:commentId')
 
 
 // EXPORT ROUTER
