@@ -20,7 +20,8 @@ router.get('/', (req, res) => {
   Fruit.find({})
   // built in function that runs before the rest of the promise chain
   // function is populate, and its able to retrieve info from other documents in other collections
-  .populate('owner', 'password')
+  .populate('owner', 'username')
+  .populate('comments.author', '-password')
   // send json if successful
   .then(fruits => { res.json({ fruits: fruits })})
   // catch errors if they occur
@@ -59,6 +60,8 @@ router.post('/', (req, res) => {
 router.get('/mine', (req, res) => {
   // find fruits by ownership, using the req.session info
   Fruit.find({ owner: req.session.userId })
+  .populate('owner', 'username')
+  .populate('comments.author', '-password')
   // if found, display fruits
   .then(fruits => {
     res.status(200).json({ fruits: fruits })
