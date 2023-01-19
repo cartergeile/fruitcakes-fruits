@@ -16,7 +16,7 @@ const commentSchema = new Schema({
     required: true
   },
   author: {
-    typr: Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   }
