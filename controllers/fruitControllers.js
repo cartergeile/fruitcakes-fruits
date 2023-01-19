@@ -129,6 +129,7 @@ router.get('/:id', (req,res) => {
   const id = req.params.id
   // use a mongoose method to find using that id
   Fruit.findById(id)
+    .populate('comments.author', 'username')
     .then(fruits => {
       res.json({ fruits: fruits })
     })
