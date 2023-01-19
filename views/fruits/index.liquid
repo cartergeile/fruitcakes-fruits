@@ -1,0 +1,13 @@
+{% layout 'layout.liquid' %}
+{% block content %}
+    {% if fruits.length > 0 %}
+      <h2>All Fruits</h2>
+      <ul>
+          {% for fruit in fruits %}
+              <li>{{ fruit.name }}</li>
+          {% endfor %}  
+      </ul>
+    {% else %}
+      <h2>No fruits yet... Go create some!</h2>
+    {% endif %}
+{% endblock %}

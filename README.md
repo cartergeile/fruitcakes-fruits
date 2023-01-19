@@ -97,3 +97,5 @@ One to One:
 Fruits are connected to Users through the `fruit.owner` field, via `objecId` reference
 Comments are connected to Fruits, as an array of subdocuments at `fruit.comments`
 Users are connected to comments, via `objectId` reference, at `comment.author`
+
+## Views Layer
