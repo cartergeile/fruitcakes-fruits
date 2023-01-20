@@ -1,164 +1,219 @@
-////////////////////////////
-// Import dependencies //
-///////////////////////////
+/////////////////////////////////////
+//// Import Dependencies         ////
+/////////////////////////////////////
 const express = require('express')
 const Fruit = require('../models/fruit')
 
-////////////////////////////
-// create router //
-///////////////////////////
+/////////////////////////////////////
+//// Create Router               ////
+/////////////////////////////////////
 const router = express.Router()
 
-////////////////////////////
-// Routes                //
-///////////////////////////
+//////////////////////////////
+//// Routes               ////
+//////////////////////////////
 
-
-// index route -> displays all fruits
+// INDEX route 
+// Read -> finds and displays all fruits
 router.get('/', (req, res) => {
-  const {username, loggedIn, userId} = req.session
-  // find all the fruits
-  Fruit.find({})
-  // built in function that runs before the rest of the promise chain
-  // function is populate, and its able to retrieve info from other documents in other collections
-  .populate('owner', 'username')
-  .populate('comments.author', '-password')
-  // send json if successful
-  .then(fruits => { 
-    //res.json({ fruits: fruits })
-    // now that we have liquid installed, were going to use render as a response for our controllers
-    res.render('fruits/index', { fruits, username, loggedIn, userId })
-  })
-  // catch errors if they occur
-  .catch(err => {
-    console.log(err)
-    res.status(404).json(err)
-  })
+    const { username, loggedIn, userId } = req.session
+    // find all the fruits
+    Fruit.find({})
+        // there's a built in function that runs before the rest of the promise chain
+        // this function is called populate, and it's able to retrieve info from other documents in other collections
+        .populate('owner', 'username')
+        .populate('comments.author', '-password')
+        // send json if successful
+        .then(fruits => { 
+            // res.json({ fruits: fruits })
+            // now that we have liquid installed, we're going to use render as a response for our controllers
+            res.render('fruits/index', { fruits, username, loggedIn, userId })
+        })
+        // catch errors if they occur
+        .catch(err => {
+            console.log(err)
+            // res.status(404).json(err)
+            res.redirect(`/error?error=${err}`)
+        })
 })
 
 // GET for the new page
-// shows form to create new frui
+// shows a form where a user can create a new fruit
 router.get('/new', (req, res) => {
-  res.render('fruits/new', { ...req.session })
+    res.render('fruits/new', { ...req.session })
 })
+
 // CREATE route
-// create -> recieves a request body, and creates a new document in the database
+// Create -> receives a request body, and creates a new document in the database
 router.post('/', (req, res) => {
-  // here well have something called request body
-  // inside this function, that will be called req.body
-  // we want to pass our req.body to the create method
-  // we want to add an owner field to our fruit
-  // luckily for us, we saved the user's id on the session object, so its really easy for us to access that data
-  // need js magic to change checkbox into boolean
-  req.body.owner = req.session.userId
-  req.body.readyToEat = req.bodyreadyToEat === 'on' ? true : false
-  const newFruit = req.body
-  Fruit.create(newFruit)
-    // send a 201 status, along with json response
-    .then(fruit => {
-      res.status(201).json({ fruit: fruit.toObject() })
-    })
-    // catch errors
-    .catch(err => {
-      console.log(err)
-      res.status(404).json(err)
-    })
+    // console.log('this is req.body before owner: \n', req.body)
+    // here, we'll have something called a request body
+    // inside this function, that will be called req.body
+    // we want to pass our req.body to the create method
+    // we want to add an owner field to our fruit
+    // luckily for us, we saved the user's id on the session object, so it's really easy for us to access that data
+    req.body.owner = req.session.userId
+
+    // we need to do a little js magic, to get our checkbox turned into a boolean
+    // here we use a ternary operator to change the on value to send as true
+    // otherwise, make that field false
+    req.body.readyToEat = req.body.readyToEat === 'on' ? true : false
+    const newFruit = req.body
+    console.log('this is req.body aka newFruit, after owner\n', newFruit)
+    Fruit.create(newFruit)
+        // send a 201 status, along with the json response of the new fruit
+        .then(fruit => {
+            // in the API server version of our code we sent json and a success msg
+            // res.status(201).json({ fruit: fruit.toObject() })
+            // we could redirect to the 'mine' page
+            // res.status(201).redirect('/fruits/mine')
+            // we could also redirect to the new fruit's show page
+            res.redirect(`/fruits/${fruit.id}`)
+        })
+        // send an error if one occurs
+        .catch(err => {
+            console.log(err)
+            // res.status(404).json(err)
+            res.redirect(`/error?error=${err}`)
+        })
 })
 
-
-// GET ROUTE
+// GET route
 // Index -> This is a user specific index route
-// this will only show the logged in users fruits
+// this will only show the logged in user's fruits
 router.get('/mine', (req, res) => {
-  const {username, loggedIn, userId} = req.session
-  // find fruits by ownership, using the req.session info
-  Fruit.find({ owner: req.session.userId })
-  .populate('owner', 'username')
-  .populate('comments.author', '-password')
-  // if found, display fruits
-  .then(fruits => {
-    res.render('fruits/index', { fruits, username, loggedIn, userId })
-  })
-  // otherwise throw an error
-  .catch(err => {
-    console.log(err)
-    res.status(400).json(err)
-  })
+    // find fruits by ownership, using the req.session info
+    Fruit.find({ owner: req.session.userId })
+        .populate('owner', 'username')
+        .populate('comments.author', '-password')
+        .then(fruits => {
+            // if found, display the fruits
+            // res.status(200).json({ fruits: fruits })
+            res.render('fruits/index', { fruits, ...req.session })
+        })
+        .catch(err => {
+            // otherwise throw an error
+            console.log(err)
+            // res.status(400).json(err)
+            res.redirect(`/error?error=${err}`)
+        })
 })
 
+// GET route for getting json for specific user fruits
+// Index -> This is a user specific index route
+// this will only show the logged in user's fruits
+router.get('/json', (req, res) => {
+    // find fruits by ownership, using the req.session info
+    Fruit.find({ owner: req.session.userId })
+        .populate('owner', 'username')
+        .populate('comments.author', '-password')
+        .then(fruits => {
+            // if found, display the fruits
+            res.status(200).json({ fruits: fruits })
+            // res.render('fruits/index', { fruits, ...req.session })
+        })
+        .catch(err => {
+            // otherwise throw an error
+            console.log(err)
+            res.status(400).json(err)
+        })
+})
+
+// GET request -> edit route
+// shows the form for updating a fruit
+router.get('/edit/:id', (req, res) => {
+    // because we're editing a specific fruit, we want to be able to access the fruit's initial values. so we can use that info on the page.
+    const fruitId = req.params.id
+    Fruit.findById(fruitId)
+        .then(fruit => {
+            res.render('fruits/edit', { fruit, ...req.session })
+        })
+        .catch(err => {
+            res.redirect(`/error?error=${err}`)
+        })
+})
 
 // PUT route
-// Update -> updates a specific fruit(only if fruit owner is updating)
+// Update -> updates a specific fruit(only if the fruit's owner is updating)
 router.put('/:id', (req, res) => {
-  const id = req.params.id
-  Fruit.findById(id)
-    .then(fruit => {
-      // if the owner of the fruit is the person who is logged in
-      if (fruit.owner == req.session.userId) {
-        // update and save the fruit
-        // and send success message
-        res.sendStatus(204)
-        return fruit.updateOne(req.body)     
-      } else {
-        // otherwise send a 401 unauthorized status
-        res.sendStatus(401)
-      }
-      
-      
-    })
-    .catch(err => {
-      console.log(err)
-      res.status(400).json(err)
-    })
+    const id = req.params.id
+    req.body.readyToEat = req.body.readyToEat === 'on' ? true : false
+    Fruit.findById(id)
+        .then(fruit => {
+            // if the owner of the fruit is the person who is logged in
+            if (fruit.owner == req.session.userId) {
+                // send success message
+                // res.sendStatus(204)
+                // update and save the fruit
+                return fruit.updateOne(req.body)
+            } else {
+                // otherwise send a 401 unauthorized status
+                // res.sendStatus(401)
+                res.redirect(`/error?error=You%20Are%20not%20allowed%20to%20edit%20this%20fruit`)
+            }
+        })
+        .then(() => {
+            // console.log('the fruit?', fruit)
+            res.redirect(`/fruits/mine`)
+        })
+        .catch(err => {
+            console.log(err)
+            // res.status(400).json(err)
+            res.redirect(`/error?error=${err}`)
+        })
 })
 
-
 // DELETE route
-// delete -> delete a specific fruit
+// Delete -> delete a specific fruit
 router.delete('/:id', (req, res) => {
-  const id = req.params.id
-  Fruit.findById(id)
-    .then(fruit => {
-      // if the owner of the fruit is the person who is logged in
-      if (fruit.owner == req.session.userId) {
-        // delete fruit
-        // and send success message
-        res.sendStatus(204)
-        return fruit.deleteOne(req.body)     
-      } else {
-        // otherwise send a 401 unauthorized status
-        res.sendStatus(401)
-      }
-      
-      
-    })
-    .catch(err => {
-      console.log(err)
-      res.status(400).json(err)
-    })
+    const id = req.params.id
+    Fruit.findById(id)
+        .then(fruit => {
+            // if the owner of the fruit is the person who is logged in
+            if (fruit.owner == req.session.userId) {
+                // send success message
+                // res.sendStatus(204)
+                // delete the fruit
+                return fruit.deleteOne()
+            } else {
+                // otherwise send a 401 unauthorized status
+                // res.sendStatus(401)
+                res.redirect(`/error?error=You%20Are%20not%20allowed%20to%20delete%20this%20fruit`)
+            }
+        })
+        .then(() => {
+            res.redirect('/fruits/mine')
+        })
+        .catch(err => {
+            console.log(err)
+            // res.status(400).json(err)
+            res.redirect(`/error?error=${err}`)
+        })
 })
 
 // SHOW route
 // Read -> finds and displays a single resource
-router.get('/:id', (req,res) => {
-  //get the id
-  const id = req.params.id
-  // use a mongoose method to find using that id
-  Fruit.findById(id)
-    .populate('comments.author', 'username')
-    .then(fruit => {
-      // res.json({ fruits: fruits })
-      res.render('fruits/show.liquid', {fruit, ...req.session})
-    })
-    .catch(err => {
-      console.log(err)
-      res.status(404).json(err)
-    })
-  // send the fruit json upon sucess
-  // catch and errors
+router.get('/:id', (req, res) => {
+    // get the id -> save to a variable
+    const id = req.params.id
+    // use a mongoose method to find using that id
+    Fruit.findById(id)
+        .populate('comments.author', 'username')
+        // send the fruit as json upon success
+        .then(fruit => {
+            // res.json({ fruit: fruit })
+            res.render('fruits/show.liquid', {fruit, ...req.session})
+        })
+        // catch any errors
+        .catch(err => {
+            console.log(err)
+            // res.status(404).json(err)
+            res.redirect(`/error?error=${err}`)
+        })
 })
 
-////////////////////////////
-// Export Router         //
-///////////////////////////
+
+//////////////////////////////
+//// Export Router        ////
+//////////////////////////////
 module.exports = router

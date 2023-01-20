@@ -40,15 +40,18 @@ router.post('/:fruitId', (req, res) => {
             })
             // respond with a 201 and the fruit itself
             .then(fruit => {
-                res.status(201).json({ fruit: fruit })
+                //res.status(201).json({ fruit: fruit })
+                res.redirect(`/fruits/${fruit.id}`)
             })
             // catch and handle any errors
             .catch(err => {
                 console.log(err)
-                res.status(400).json(err)
+                //res.status(400).json(err)
+                res.redirect(`/error?error=${err}`)
             })
     } else {
-        res.sendStatus(401) //send a 401-unauthorized
+        //res.sendStatus(401) //send a 401-unauthorized
+        res.redirect(`/error?error=You%20Are%20not%20allowed%20to%20comment%20on%20this%20fruit`)
     }
 })
 
@@ -73,19 +76,20 @@ router.delete('/delete/:fruitId/:commId', (req, res) => {
         // we can use another built in method - remove()
         theComment.remove()
         fruit.save()
-        res.sendStatus(204)
+        //res.sendStatus(204)
+        res.redirect(`/fruits/${fruit.id}`)
       } else {
          // otherwise send a 401 - unauthorized
-        res.sendStatus(401)
+         res.redirect(`/error?error=You%20Are%20not%20allowed%20to%20delete%20this%20comment`)
       }
     } else {
       // otherwise send a 401 - unauthorized
-      res.sendStatus(401)
+      res.redirect(`/error?error=You%20Are%20not%20allowed%20to%20delete%20this%20comment`)
     }   
   })
   .catch(err => {
     console.log(err)
-    res.status(400).json(err)
+    res.redirect(`/error?error=${err}`)
   })
 })
 
