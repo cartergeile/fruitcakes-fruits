@@ -139,8 +139,9 @@ router.get('/:id', (req,res) => {
   // use a mongoose method to find using that id
   Fruit.findById(id)
     .populate('comments.author', 'username')
-    .then(fruits => {
-      res.json({ fruits: fruits })
+    .then(fruit => {
+      // res.json({ fruits: fruits })
+      res.render('fruits/show.liquid', {fruit, ...req.session})
     })
     .catch(err => {
       console.log(err)
