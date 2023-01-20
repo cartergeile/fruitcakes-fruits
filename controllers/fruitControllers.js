@@ -63,13 +63,14 @@ router.post('/', (req, res) => {
 // Index -> This is a user specific index route
 // this will only show the logged in users fruits
 router.get('/mine', (req, res) => {
+  const {username, loggedIn, userId} = req.session
   // find fruits by ownership, using the req.session info
   Fruit.find({ owner: req.session.userId })
   .populate('owner', 'username')
   .populate('comments.author', '-password')
   // if found, display fruits
   .then(fruits => {
-    res.status(200).json({ fruits: fruits })
+    res.render('fruits/index', { fruits, username, loggedIn, userId })
   })
   // otherwise throw an error
   .catch(err => {
