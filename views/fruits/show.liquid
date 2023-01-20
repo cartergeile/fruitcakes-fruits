@@ -1,7 +1,8 @@
 {% layout 'layout.liquid' %}
 {% block content %}
     <div class="container-md">
-        <article>
+      <div class="row justify-content-between">
+          <article class="col-5">
             <h2>{{fruit.name}}</h2>
             <h4>
                 {% if fruit.readyToEat %}
@@ -25,7 +26,18 @@
                     </form>
                 </div>
             {% endif %}
-        </article>
+          </article>
+          {% if fruitNutrients %}
+          <div class="fruitInfo col-3 mt-2 bg-light">
+            <p>Nutritional Info:</p>
+            <p>protiens: {{fruitNutrients.protien}}</p>
+            <p>carbs: {{fruitNutrients.carbs}}</p>
+            <p>fat: {{fruitNutrients.fat}}</p>
+            <p>sugar: {{fruitNutrients.sugar}}</p>
+            <p>calories: {{fruitNutrients.calories}}</p>
+          {% endif %}
+          </div>
+        </div>
         <hr>
         <h4>comments:</h4>
         <hr>

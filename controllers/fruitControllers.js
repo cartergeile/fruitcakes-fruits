@@ -2,6 +2,8 @@
 //// Import Dependencies         ////
 /////////////////////////////////////
 const express = require('express')
+const axios = require('axios')
+require('dotenv').config()
 const Fruit = require('../models/fruit')
 
 /////////////////////////////////////
@@ -193,16 +195,22 @@ router.delete('/:id', (req, res) => {
 
 // SHOW route
 // Read -> finds and displays a single resource
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
     // get the id -> save to a variable
     const id = req.params.id
     // use a mongoose method to find using that id
     Fruit.findById(id)
         .populate('comments.author', 'username')
         // send the fruit as json upon success
-        .then(fruit => {
+        .then(async fruit => {
             // res.json({ fruit: fruit })
-            res.render('fruits/show.liquid', {fruit, ...req.session})
+            //console.log(process.env.FRUITY_URL)
+            const fruitInfo = await axios(`${process.env.FRUITY_URL}/${fruit.name}`)
+            if (fruitInfo.status == 404) {
+              fruitInfo = false
+            }
+            //console.log('fruitInfo', fruitInfo.data.nutritions)
+            res.render('fruits/show.liquid', {fruit, fruitNutrients, ...req.session})
         })
         // catch any errors
         .catch(err => {
